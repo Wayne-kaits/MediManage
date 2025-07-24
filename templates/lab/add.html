@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Order Lab Test - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus"></i> Order New Lab Test</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="patient_id" class="form-label">Patient *</label>
+                        <select class="form-select" id="patient_id" name="patient_id" required>
+                            <option value="">Select Patient</option>
+                            {% for patient in patients %}
+                            <option value="{{ patient.id }}" {{ 'selected' if request.args.get('patient_id') == patient.id|string }}>
+                                {{ patient.first_name }} {{ patient.last_name }} ({{ patient.patient_id }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">
+                            Can't find the patient? <a href="{{ url_for('add_patient') }}">Add new patient</a>
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ordered_by" class="form-label">Ordered By (Doctor) *</label>
+                        <select class="form-select" id="ordered_by" name="ordered_by" required>
+                            <option value="">Select Doctor</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}">
+                                Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="test_name" class="form-label">Test Name *</label>
+                                <input type="text" class="form-control" id="test_name" name="test_name" 
+                                       placeholder="e.g., Complete Blood Count" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="test_type" class="form-label">Test Type *</label>
+                                <select class="form-select" id="test_type" name="test_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="blood">Blood Test</option>
+                                    <option value="urine">Urine Test</option>
+                                    <option value="imaging">Imaging (X-Ray, CT, MRI)</option>
+                                    <option value="biopsy">Biopsy</option>
+                                    <option value="culture">Culture Test</option>
+                                    <option value="genetic">Genetic Test</option>
+                                    <option value="allergy">Allergy Test</option>
+                                    <option value="cardiac">Cardiac Test</option>
+                                    <option value="endocrine">Endocrine Test</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="normal_range" class="form-label">Normal Range</label>
+                        <input type="text" class="form-control" id="normal_range" name="normal_range" 
+                               placeholder="e.g., 4.5-11.0 x10^3/μL">
+                        <small class="form-text text-muted">Expected normal values for this test</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Clinical Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Clinical indications, special instructions, or relevant symptoms..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> The test will be created with "Ordered" status. 
+                        Update the status and add results once the test is completed.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Order Lab Test
+                        </button>
+                        <a href="{{ url_for('lab_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Test Templates -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-clipboard-list"></i> Quick Test Templates</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="fillTest('Complete Blood Count', 'blood', 'WBC: 4.5-11.0, RBC: 4.7-6.1, Hgb: 14-18')">
+                            <i class="fas fa-tint"></i> Complete Blood Count
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="fillTest('Basic Metabolic Panel', 'blood', 'Glucose: 70-100 mg/dL, Sodium: 136-145 mEq/L')">
+                            <i class="fas fa-vial"></i> Basic Metabolic Panel
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="fillTest('Lipid Panel', 'blood', 'Total Cholesterol: <200 mg/dL, HDL: >40 mg/dL')">
+                            <i class="fas fa-heartbeat"></i> Lipid Panel
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="fillTest('Urinalysis', 'urine', 'Protein: Negative, Glucose: Negative, Blood: Negative')">
+                            <i class="fas fa-flask"></i> Urinalysis
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="fillTest('Thyroid Function', 'blood', 'TSH: 0.4-4.0 mIU/L, T4: 4.5-12.0 μg/dL')">
+                            <i class="fas fa-pills"></i> Thyroid Function
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="fillTest('Chest X-Ray', 'imaging', 'Normal lung fields, clear heart borders')">
+                            <i class="fas fa-x-ray"></i> Chest X-Ray
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillTest(testName, testType, normalRange) {
+    document.getElementById('test_name').value = testName;
+    document.getElementById('test_type').value = testType;
+    document.getElementById('normal_range').value = normalRange;
+}
+</script>
+{% endblock %}

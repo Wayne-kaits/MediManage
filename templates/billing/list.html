@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Billing - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-file-invoice-dollar"></i> Billing</h1>
+    <a href="{{ url_for('add_bill') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create Bill
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-6">
+                <label for="status" class="form-label">Filter by Status</label>
+                <select class="form-select" name="status">
+                    <option value="all" {{ 'selected' if status_filter == 'all' or not status_filter }}>All Statuses</option>
+                    <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Pending</option>
+                    <option value="paid" {{ 'selected' if status_filter == 'paid' }}>Paid</option>
+                    <option value="partial" {{ 'selected' if status_filter == 'partial' }}>Partial</option>
+                    <option value="overdue" {{ 'selected' if status_filter == 'overdue' }}>Overdue</option>
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary me-2">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <a href="{{ url_for('billing_list') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bills Table -->
+<div class="card">
+    <div class="card-header">
+        <h5>Bill List ({{ bills.total }} bills)</h5>
+    </div>
+    <div class="card-body">
+        {% if bills.items %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Bill Number</th>
+                        <th>Patient</th>
+                        <th>Bill Date</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills.items %}
+                    <tr>
+                        <td><strong>{{ bill.bill_number }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('view_patient', patient_id=bill.patient.id) }}" class="text-decoration-none">
+                                {{ bill.patient.first_name }} {{ bill.patient.last_name }}
+                            </a><br>
+                            <small class="text-muted">ID: {{ bill.patient.patient_id }}</small>
+                        </td>
+                        <td>{{ bill.bill_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ bill.due_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ format_currency(bill.total_amount) }}</td>
+                        <td>{{ format_currency(bill.paid_amount) }}</td>
+                        <td>
+                            {% if bill.balance > 0 %}
+                                <strong class="text-danger">{{ format_currency(bill.balance) }}</strong>
+                            {% else %}
+                                <span class="text-success">{{ format_currency(0) }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ get_bill_status_badge(bill.status) }}">
+                                {{ bill.status.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_bill', bill_id=bill.id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if bills.pages > 1 %}
+        <nav aria-label="Bill pagination">
+            <ul class="pagination justify-content-center">
+                {% if bills.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('billing_list', page=bills.prev_num, status=status_filter) }}">
+                            Previous
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in bills.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != bills.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('billing_list', page=page_num, status=status_filter) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if bills.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('billing_list', page=bills.next_num, status=status_filter) }}">
+                            Next
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+            <p class="text-muted">
+                {% if status_filter %}
+                    No bills found matching your filter criteria.
+                {% else %}
+                    No bills created yet.
+                {% endif %}
+            </p>
+            <a href="{{ url_for('add_bill') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create First Bill
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

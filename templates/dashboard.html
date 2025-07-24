@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+    <small class="text-muted">Welcome back, {{ session.username }}!</small>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h3 class="card-title">{{ total_patients }}</h3>
+                <p class="card-text">Total Patients</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar-day fa-2x text-success mb-2"></i>
+                <h3 class="card-title">{{ today_appointments }}</h3>
+                <p class="card-text">Today's Appointments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-file-invoice fa-2x text-warning mb-2"></i>
+                <h3 class="card-title">{{ pending_bills }}</h3>
+                <p class="card-text">Pending Bills</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-flask fa-2x text-info mb-2"></i>
+                <h3 class="card-title">{{ pending_tests }}</h3>
+                <p class="card-text">Pending Tests</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-rocket"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('add_patient') }}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-user-plus"></i><br>Add Patient
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('add_appointment') }}" class="btn btn-outline-success w-100 mb-2">
+                            <i class="fas fa-calendar-plus"></i><br>Schedule Appointment
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('add_bill') }}" class="btn btn-outline-warning w-100 mb-2">
+                            <i class="fas fa-file-invoice-dollar"></i><br>Create Bill
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('add_lab_test') }}" class="btn btn-outline-info w-100 mb-2">
+                            <i class="fas fa-plus-circle"></i><br>Order Lab Test
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-user-friends"></i> Recent Patients</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_patients %}
+                    <div class="list-group list-group-flush">
+                        {% for patient in recent_patients %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ patient.first_name }} {{ patient.last_name }}</strong><br>
+                                <small class="text-muted">ID: {{ patient.patient_id }}</small>
+                            </div>
+                            <a href="{{ url_for('view_patient', patient_id=patient.id) }}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No patients registered yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-calendar-alt"></i> Recent Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_appointments %}
+                    <div class="list-group list-group-flush">
+                        {% for appointment in recent_appointments %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</strong><br>
+                                <small class="text-muted">{{ appointment.appointment_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <span class="badge {{ get_appointment_status_badge(appointment.status) }}">
+                                {{ appointment.status.title() }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No appointments scheduled yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

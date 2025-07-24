@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Create Bill - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus"></i> Create New Bill</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="billForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="patient_id" class="form-label">Patient *</label>
+                                <select class="form-select" id="patient_id" name="patient_id" required>
+                                    <option value="">Select Patient</option>
+                                    {% for patient in patients %}
+                                    <option value="{{ patient.id }}" {{ 'selected' if request.args.get('patient_id') == patient.id|string }}>
+                                        {{ patient.first_name }} {{ patient.last_name }} ({{ patient.patient_id }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointment_id" class="form-label">Related Appointment (Optional)</label>
+                                <select class="form-select" id="appointment_id" name="appointment_id">
+                                    <option value="">Select Appointment</option>
+                                    {% for appointment in appointments %}
+                                    <option value="{{ appointment.id }}" {{ 'selected' if request.args.get('appointment_id') == appointment.id|string }}>
+                                        {{ appointment.patient.first_name }} {{ appointment.patient.last_name }} - 
+                                        {{ appointment.appointment_date.strftime('%Y-%m-%d %H:%M') }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="total_amount" class="form-label">Total Amount *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="total_amount" name="total_amount" 
+                                           step="0.01" min="0" required readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="due_date" class="form-label">Due Date *</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="paid_amount" class="form-label">Paid Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="paid_amount" name="paid_amount" 
+                                           step="0.01" min="0" value="0.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bill Items -->
+                    <h5 class="mb-3 mt-4">Bill Items</h5>
+                    <div id="billItems">
+                        <div class="bill-item row mb-2">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" name="item_description[]" 
+                                       placeholder="Item description" required>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control item-quantity" name="item_quantity[]" 
+                                       placeholder="Qty" min="1" value="1" required>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control item-price" name="item_unit_price[]" 
+                                           placeholder="Unit price" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger remove-item" disabled>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="button" id="addItem" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Bill
+                        </button>
+                        <a href="{{ url_for('billing_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const billItemsContainer = document.getElementById('billItems');
+    const addItemButton = document.getElementById('addItem');
+    const totalAmountInput = document.getElementById('total_amount');
+    
+    // Set default due date to 30 days from now
+    const dueDateInput = document.getElementById('due_date');
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    dueDateInput.value = thirtyDaysFromNow.toISOString().split('T')[0];
+    
+    function calculateTotal() {
+        let total = 0;
+        const items = document.querySelectorAll('.bill-item');
+        items.forEach(item => {
+            const quantity = parseFloat(item.querySelector('.item-quantity').value) || 0;
+            const price = parseFloat(item.querySelector('.item-price').value) || 0;
+            total += quantity * price;
+        });
+        totalAmountInput.value = total.toFixed(2);
+    }
+    
+    function updateRemoveButtons() {
+        const items = document.querySelectorAll('.bill-item');
+        const removeButtons = document.querySelectorAll('.remove-item');
+        removeButtons.forEach((button, index) => {
+            button.disabled = items.length <= 1;
+        });
+    }
+    
+    addItemButton.addEventListener('click', function() {
+        const newItem = document.createElement('div');
+        newItem.className = 'bill-item row mb-2';
+        newItem.innerHTML = `
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="item_description[]" 
+                       placeholder="Item description" required>
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control item-quantity" name="item_quantity[]" 
+                       placeholder="Qty" min="1" value="1" required>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control item-price" name="item_unit_price[]" 
+                           placeholder="Unit price" step="0.01" min="0" required>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-outline-danger remove-item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        billItemsContainer.appendChild(newItem);
+        
+        // Add event listeners for new item
+        const quantityInput = newItem.querySelector('.item-quantity');
+        const priceInput = newItem.querySelector('.item-price');
+        const removeButton = newItem.querySelector('.remove-item');
+        
+        quantityInput.addEventListener('input', calculateTotal);
+        priceInput.addEventListener('input', calculateTotal);
+        
+        removeButton.addEventListener('click', function() {
+            newItem.remove();
+            calculateTotal();
+            updateRemoveButtons();
+        });
+        
+        updateRemoveButtons();
+    });
+    
+    // Add event listeners to existing items
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('item-quantity') || e.target.classList.contains('item-price')) {
+            calculateTotal();
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
+            const item = e.target.closest('.bill-item');
+            if (item && document.querySelectorAll('.bill-item').length > 1) {
+                item.remove();
+                calculateTotal();
+                updateRemoveButtons();
+            }
+        }
+    });
+    
+    updateRemoveButtons();
+});
+</script>
+{% endblock %}

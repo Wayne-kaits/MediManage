@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ patient.first_name }} {{ patient.last_name }} - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-user-edit"></i> Edit Patient: {{ patient.first_name }} {{ patient.last_name }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Basic Information -->
+                    <h5 class="mb-3">Basic Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ patient.first_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ patient.last_name }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth *</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                       value="{{ patient.date_of_birth.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="gender" class="form-label">Gender *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="male" {{ 'selected' if patient.gender == 'male' }}>Male</option>
+                                    <option value="female" {{ 'selected' if patient.gender == 'female' }}>Female</option>
+                                    <option value="other" {{ 'selected' if patient.gender == 'other' }}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="blood_type" class="form-label">Blood Type</label>
+                                <select class="form-select" id="blood_type" name="blood_type">
+                                    <option value="">Select Blood Type</option>
+                                    <option value="A+" {{ 'selected' if patient.blood_type == 'A+' }}>A+</option>
+                                    <option value="A-" {{ 'selected' if patient.blood_type == 'A-' }}>A-</option>
+                                    <option value="B+" {{ 'selected' if patient.blood_type == 'B+' }}>B+</option>
+                                    <option value="B-" {{ 'selected' if patient.blood_type == 'B-' }}>B-</option>
+                                    <option value="AB+" {{ 'selected' if patient.blood_type == 'AB+' }}>AB+</option>
+                                    <option value="AB-" {{ 'selected' if patient.blood_type == 'AB-' }}>AB-</option>
+                                    <option value="O+" {{ 'selected' if patient.blood_type == 'O+' }}>O+</option>
+                                    <option value="O-" {{ 'selected' if patient.blood_type == 'O-' }}>O-</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <h5 class="mb-3 mt-4">Contact Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ patient.phone or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ patient.email or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ patient.address or '' }}</textarea>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <h5 class="mb-3 mt-4">Emergency Contact</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="emergency_contact" class="form-label">Emergency Contact Name</label>
+                                <input type="text" class="form-control" id="emergency_contact" name="emergency_contact" 
+                                       value="{{ patient.emergency_contact or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="emergency_phone" class="form-label">Emergency Contact Phone</label>
+                                <input type="tel" class="form-control" id="emergency_phone" name="emergency_phone" 
+                                       value="{{ patient.emergency_phone or '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Information -->
+                    <h5 class="mb-3 mt-4">Medical Information</h5>
+                    <div class="mb-3">
+                        <label for="allergies" class="form-label">Allergies</label>
+                        <textarea class="form-control" id="allergies" name="allergies" rows="2" 
+                                  placeholder="List any known allergies...">{{ patient.allergies or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="medical_history" class="form-label">Medical History</label>
+                        <textarea class="form-control" id="medical_history" name="medical_history" rows="3" 
+                                  placeholder="Brief medical history...">{{ patient.medical_history or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Patient
+                        </button>
+                        <a href="{{ url_for('view_patient', patient_id=patient.id) }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

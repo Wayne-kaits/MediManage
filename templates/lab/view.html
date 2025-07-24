@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Lab Test {{ lab_test.test_id }} - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-flask"></i> Lab Test {{ lab_test.test_id }}</h1>
+    <div>
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="fas fa-print"></i> Print Results
+        </button>
+        <a href="{{ url_for('lab_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Test Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Test Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Test ID:</strong> {{ lab_test.test_id }}</p>
+                        <p><strong>Test Name:</strong> {{ lab_test.test_name }}</p>
+                        <p><strong>Test Type:</strong> {{ lab_test.test_type.replace('_', ' ').title() }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge {{ get_lab_status_badge(lab_test.status) }}">
+                                {{ lab_test.status.replace('_', ' ').title() }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Ordered Date:</strong> {{ lab_test.ordered_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% if lab_test.completed_date %}
+                        <p><strong>Completed Date:</strong> {{ lab_test.completed_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% endif %}
+                        <p><strong>Ordered By:</strong> Dr. {{ lab_test.doctor.first_name }} {{ lab_test.doctor.last_name }}</p>
+                    </div>
+                </div>
+                
+                {% if lab_test.normal_range %}
+                <div class="mt-3">
+                    <h6>Normal Range</h6>
+                    <div class="bg-light p-3 rounded">
+                        {{ lab_test.normal_range }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if lab_test.notes %}
+                <div class="mt-3">
+                    <h6>Clinical Notes</h6>
+                    <div class="bg-light p-3 rounded">
+                        {{ lab_test.notes }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Patient Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-user"></i> Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ lab_test.patient.first_name }} {{ lab_test.patient.last_name }}</p>
+                        <p><strong>Patient ID:</strong> {{ lab_test.patient.patient_id }}</p>
+                        <p><strong>Age:</strong> {{ calculate_age(lab_test.patient.date_of_birth) }} years</p>
+                        <p><strong>Gender:</strong> {{ lab_test.patient.gender.title() }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Phone:</strong> {{ lab_test.patient.phone or 'Not provided' }}</p>
+                        <p><strong>Email:</strong> {{ lab_test.patient.email or 'Not provided' }}</p>
+                        {% if lab_test.patient.blood_type %}
+                        <p><strong>Blood Type:</strong> {{ lab_test.patient.blood_type }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('view_patient', patient_id=lab_test.patient.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user"></i> View Full Patient Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-chart-line"></i> Test Results</h5>
+                {% if lab_test.status != 'completed' %}
+                <small class="text-muted">Results pending</small>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if lab_test.results %}
+                <div class="results-section">
+                    <div class="bg-light p-4 rounded">
+                        <pre style="white-space: pre-wrap; font-family: inherit;">{{ lab_test.results }}</pre>
+                    </div>
+                    
+                    {% if lab_test.normal_range %}
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <strong>Reference Range:</strong> {{ lab_test.normal_range }}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-hourglass-half fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">
+                        {% if lab_test.status == 'ordered' %}
+                            Test has been ordered. Results will be available once the test is completed.
+                        {% elif lab_test.status == 'in_progress' %}
+                            Test is currently in progress. Results will be available soon.
+                        {% else %}
+                            No results available yet.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Status Update -->
+        {% if session.role in ['admin', 'doctor'] %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-edit"></i> Update Test</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('view_lab_test', test_id=lab_test.id) }}">
+                    <input type="hidden" name="action" value="update_status">
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="ordered" {{ 'selected' if lab_test.status == 'ordered' }}>Ordered</option>
+                            <option value="in_progress" {{ 'selected' if lab_test.status == 'in_progress' }}>In Progress</option>
+                            <option value="completed" {{ 'selected' if lab_test.status == 'completed' }}>Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="results" class="form-label">Results</label>
+                        <textarea class="form-control" id="results" name="results" rows="6" 
+                                  placeholder="Enter test results...">{{ lab_test.results or '' }}</textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save"></i> Update Test
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-tools"></i> Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('add_appointment') }}?patient_id={{ lab_test.patient.id }}" 
+                   class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-calendar-plus"></i> Schedule Follow-up
+                </a>
+                
+                <a href="{{ url_for('add_bill') }}?patient_id={{ lab_test.patient.id }}" 
+                   class="btn btn-outline-warning w-100 mb-2">
+                    <i class="fas fa-file-invoice-dollar"></i> Create Bill
+                </a>
+                
+                <a href="{{ url_for('add_lab_test') }}?patient_id={{ lab_test.patient.id }}" 
+                   class="btn btn-outline-info w-100">
+                    <i class="fas fa-plus"></i> Order Another Test
+                </a>
+            </div>
+        </div>
+
+        <!-- Test History -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Patient's Lab History</h5>
+            </div>
+            <div class="card-body">
+                {% set recent_tests = lab_test.patient.lab_tests|selectattr('id', 'ne', lab_test.id)|list %}
+                {% if recent_tests %}
+                <div class="list-group list-group-flush">
+                    {% for test in recent_tests[:5] %}
+                    <div class="list-group-item">
+                        <small>{{ test.ordered_date.strftime('%Y-%m-%d') }}</small><br>
+                        <strong>{{ test.test_name }}</strong><br>
+                        <span class="badge {{ get_lab_status_badge(test.status) }}">
+                            {{ test.status.replace('_', ' ').title() }}
+                        </span>
+                        <a href="{{ url_for('view_lab_test', test_id=test.id) }}" class="btn btn-sm btn-outline-primary float-end">
+                            View
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No other lab tests found for this patient.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

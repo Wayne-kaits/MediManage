@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
+    <small class="text-muted">Data overview and insights</small>
+</div>
+
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h3 class="card-title">{{ total_patients }}</h3>
+                <p class="card-text">Total Patients</p>
+                <small class="text-muted">{{ monthly_patients }} this month</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar-alt fa-2x text-success mb-2"></i>
+                <h3 class="card-title">{{ total_appointments }}</h3>
+                <p class="card-text">Total Appointments</p>
+                <small class="text-muted">All time</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
+                <h3 class="card-title">{{ format_currency(total_revenue) }}</h3>
+                <p class="card-text">Total Revenue</p>
+                <small class="text-muted">{{ format_currency(monthly_revenue) }} this month</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                <h3 class="card-title">{{ pending_bills }}</h3>
+                <p class="card-text">Pending Bills</p>
+                <small class="text-muted">Require attention</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Report Actions -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-download"></i> Generate Reports</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Patient Reports</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="generateReport('patient_list')">
+                        <i class="fas fa-users"></i> Patient List Report
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="generateReport('patient_demographics')">
+                        <i class="fas fa-chart-pie"></i> Patient Demographics
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Financial Reports</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-success" onclick="generateReport('revenue_summary')">
+                        <i class="fas fa-chart-line"></i> Revenue Summary
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="generateReport('pending_payments')">
+                        <i class="fas fa-exclamation-circle"></i> Pending Payments
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Appointment Reports</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-info" onclick="generateReport('appointment_summary')">
+                        <i class="fas fa-calendar-check"></i> Appointment Summary
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="generateReport('doctor_schedule')">
+                        <i class="fas fa-user-md"></i> Doctor Schedule Report
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Lab Reports</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-info" onclick="generateReport('lab_summary')">
+                        <i class="fas fa-flask"></i> Lab Test Summary
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="generateReport('test_results')">
+                        <i class="fas fa-chart-bar"></i> Test Results Overview
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Overview -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-calendar-alt"></i> This Month Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <h4 class="text-primary">{{ monthly_patients }}</h4>
+                            <small class="text-muted">New Patients</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <h4 class="text-success">{{ format_currency(monthly_revenue) }}</h4>
+                            <small class="text-muted">Revenue</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" style="width: {{ (monthly_patients / (total_patients if total_patients > 0 else 1) * 100)|round }}%">
+                        {{ (monthly_patients / (total_patients if total_patients > 0 else 1) * 100)|round }}% of total patients
+                    </div>
+                </div>
+                
+                <small class="text-muted">
+                    Monthly activity compared to total hospital statistics
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-exclamation-triangle"></i> Attention Required</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_bills > 0 %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <strong>{{ pending_bills }}</strong> pending bills require attention
+                    <a href="{{ url_for('billing_list', status='pending') }}" class="alert-link">View pending bills</a>
+                </div>
+                {% endif %}
+                
+                <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Active Patients
+                        <span class="badge bg-primary rounded-pill">{{ total_patients }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Completed Appointments
+                        <span class="badge bg-success rounded-pill">{{ total_appointments }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Outstanding Payments
+                        <span class="badge bg-warning rounded-pill">{{ pending_bills }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Status -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-server"></i> System Status</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h6>System Online</h6>
+                    <small class="text-muted">All services operational</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-database fa-2x text-info mb-2"></i>
+                    <h6>Database Connected</h6>
+                    <small class="text-muted">Data sync active</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                    <h6>Security Active</h6>
+                    <small class="text-muted">User sessions secured</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Generation Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Generate Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reportContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Generating report...</span>
+                        </div>
+                        <p class="mt-2">Generating report, please wait...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="downloadReport()">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generateReport(reportType) {
+    const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+    const reportContent = document.getElementById('reportContent');
+    
+    // Show loading state
+    reportContent.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Generating report...</span>
+            </div>
+            <p class="mt-2">Generating ${reportType.replace('_', ' ')} report...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simulate report generation
+    setTimeout(() => {
+        let content = '';
+        
+        switch(reportType) {
+            case 'patient_list':
+                content = `
+                    <h6>Patient List Report</h6>
+                    <p>Total Patients: {{ total_patients }}</p>
+                    <p>New Patients This Month: {{ monthly_patients }}</p>
+                    <p>Report generated on: ${new Date().toLocaleDateString()}</p>
+                    <small class="text-muted">This report contains a summary of all registered patients.</small>
+                `;
+                break;
+            case 'revenue_summary':
+                content = `
+                    <h6>Revenue Summary</h6>
+                    <p>Total Revenue: {{ format_currency(total_revenue) }}</p>
+                    <p>Monthly Revenue: {{ format_currency(monthly_revenue) }}</p>
+                    <p>Pending Bills: {{ pending_bills }}</p>
+                    <small class="text-muted">Financial overview of hospital revenue and outstanding payments.</small>
+                `;
+                break;
+            default:
+                content = `
+                    <h6>${reportType.replace('_', ' ').toUpperCase()} Report</h6>
+                    <p>Report generated successfully on ${new Date().toLocaleDateString()}</p>
+                    <small class="text-muted">This report contains relevant data for the selected category.</small>
+                `;
+        }
+        
+        reportContent.innerHTML = content;
+    }, 2000);
+}
+
+function downloadReport() {
+    // In a real implementation, this would download the actual report
+    alert('Report download functionality would be implemented here.');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.first_name }} {{ patient.last_name }} - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user"></i> {{ patient.first_name }} {{ patient.last_name }}</h1>
+    <div>
+        <a href="{{ url_for('edit_patient', patient_id=patient.id) }}" class="btn btn-outline-primary">
+            <i class="fas fa-edit"></i> Edit Patient
+        </a>
+        <a href="{{ url_for('patients_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Patient Information -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-id-card"></i> Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Patient ID:</strong> {{ patient.patient_id }}</p>
+                        <p><strong>Full Name:</strong> {{ patient.first_name }} {{ patient.last_name }}</p>
+                        <p><strong>Age:</strong> {{ calculate_age(patient.date_of_birth) }} years</p>
+                        <p><strong>Gender:</strong> {{ patient.gender.title() }}</p>
+                        <p><strong>Blood Type:</strong> {{ patient.blood_type or 'Not specified' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Phone:</strong> {{ patient.phone or 'Not provided' }}</p>
+                        <p><strong>Email:</strong> {{ patient.email or 'Not provided' }}</p>
+                        <p><strong>Registration Date:</strong> {{ patient.created_at.strftime('%Y-%m-%d') }}</p>
+                        {% if patient.updated_at != patient.created_at %}
+                        <p><strong>Last Updated:</strong> {{ patient.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if patient.address %}
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <p><strong>Address:</strong><br>{{ patient.address }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if patient.emergency_contact %}
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Emergency Contact</h6>
+                        <p><strong>Name:</strong> {{ patient.emergency_contact }}</p>
+                        {% if patient.emergency_phone %}
+                        <p><strong>Phone:</strong> {{ patient.emergency_phone }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('add_appointment') }}?patient_id={{ patient.id }}" class="btn btn-outline-success w-100 mb-2">
+                    <i class="fas fa-calendar-plus"></i> Schedule Appointment
+                </a>
+                <a href="{{ url_for('add_bill') }}?patient_id={{ patient.id }}" class="btn btn-outline-warning w-100 mb-2">
+                    <i class="fas fa-file-invoice-dollar"></i> Create Bill
+                </a>
+                <a href="{{ url_for('add_lab_test') }}?patient_id={{ patient.id }}" class="btn btn-outline-info w-100">
+                    <i class="fas fa-flask"></i> Order Lab Test
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Medical Information -->
+{% if patient.allergies or patient.medical_history %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-notes-medical"></i> Medical Information</h5>
+    </div>
+    <div class="card-body">
+        {% if patient.allergies %}
+        <div class="mb-3">
+            <h6 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Allergies</h6>
+            <p>{{ patient.allergies }}</p>
+        </div>
+        {% endif %}
+        
+        {% if patient.medical_history %}
+        <div class="mb-3">
+            <h6><i class="fas fa-history"></i> Medical History</h6>
+            <p>{{ patient.medical_history }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Appointments -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5><i class="fas fa-calendar-alt"></i> Appointments ({{ appointments|length }})</h5>
+        <a href="{{ url_for('add_appointment') }}?patient_id={{ patient.id }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Schedule New
+        </a>
+    </div>
+    <div class="card-body">
+        {% if appointments %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Type</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.appointment_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ appointment.appointment_type }}</td>
+                        <td>{{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</td>
+                        <td>
+                            <span class="badge {{ get_appointment_status_badge(appointment.status) }}">
+                                {{ appointment.status.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No appointments scheduled.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Bills -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5><i class="fas fa-file-invoice-dollar"></i> Bills ({{ bills|length }})</h5>
+        <a href="{{ url_for('add_bill') }}?patient_id={{ patient.id }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Create Bill
+        </a>
+    </div>
+    <div class="card-body">
+        {% if bills %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Bill Number</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                    <tr>
+                        <td>{{ bill.bill_number }}</td>
+                        <td>{{ bill.bill_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ format_currency(bill.total_amount) }}</td>
+                        <td>
+                            <span class="badge {{ get_bill_status_badge(bill.status) }}">
+                                {{ bill.status.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_bill', bill_id=bill.id) }}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No bills created.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Lab Tests -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5><i class="fas fa-flask"></i> Lab Tests ({{ lab_tests|length }})</h5>
+        <a href="{{ url_for('add_lab_test') }}?patient_id={{ patient.id }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Order Test
+        </a>
+    </div>
+    <div class="card-body">
+        {% if lab_tests %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Test ID</th>
+                        <th>Test Name</th>
+                        <th>Type</th>
+                        <th>Ordered Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in lab_tests %}
+                    <tr>
+                        <td>{{ test.test_id }}</td>
+                        <td>{{ test.test_name }}</td>
+                        <td>{{ test.test_type }}</td>
+                        <td>{{ test.ordered_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="badge {{ get_lab_status_badge(test.status) }}">
+                                {{ test.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_lab_test', test_id=test.id) }}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No lab tests ordered.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Appointment - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-calendar-plus"></i> Schedule New Appointment</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="patient_id" class="form-label">Patient *</label>
+                        <select class="form-select" id="patient_id" name="patient_id" required>
+                            <option value="">Select Patient</option>
+                            {% for patient in patients %}
+                            <option value="{{ patient.id }}" {{ 'selected' if request.args.get('patient_id') == patient.id|string }}>
+                                {{ patient.first_name }} {{ patient.last_name }} ({{ patient.patient_id }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">
+                            Can't find the patient? <a href="{{ url_for('add_patient') }}">Add new patient</a>
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="doctor_id" class="form-label">Doctor *</label>
+                        <select class="form-select" id="doctor_id" name="doctor_id" required>
+                            <option value="">Select Doctor</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}">
+                                Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointment_date" class="form-label">Date & Time *</label>
+                                <input type="datetime-local" class="form-control" id="appointment_date" 
+                                       name="appointment_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointment_type" class="form-label">Appointment Type *</label>
+                                <select class="form-select" id="appointment_type" name="appointment_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="consultation">Consultation</option>
+                                    <option value="follow_up">Follow-up</option>
+                                    <option value="checkup">General Checkup</option>
+                                    <option value="emergency">Emergency</option>
+                                    <option value="surgery">Surgery</option>
+                                    <option value="therapy">Therapy</option>
+                                    <option value="vaccination">Vaccination</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Additional notes or special instructions..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Schedule Appointment
+                        </button>
+                        <a href="{{ url_for('appointments_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    const dateInput = document.getElementById('appointment_date');
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    dateInput.min = now.toISOString().slice(0, 16);
+});
+</script>
+{% endblock %}
