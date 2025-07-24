@@ -64,10 +64,29 @@ The application follows a traditional Flask web application architecture with th
 5. **Lab Testing**: Order and track medical tests with results
 6. **Reporting**: Analytics and data visualization
 
+## Database Configuration
+
+### Current Setup
+- **Production Database**: PostgreSQL with connection pooling
+- **Development Fallback**: SQLite for local development
+- **Connection Management**: Automatic connection pooling with health checks
+- **Environment Variables**: DATABASE_URL, PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE
+
+### Database Tools
+- **Database Initialization**: `python db_init.py` - Creates tables and default users
+- **Sample Data Generator**: `python sample_data.py` - Adds demonstration data
+- **Database Manager**: `python database_manager.py` - Backup, cleanup, and status tools
+
+### Default Users (Created Automatically)
+- **Admin**: username: `admin`, password: `admin123`
+- **Doctor**: username: `dr.smith`, password: `doctor123` 
+- **Staff**: username: `nurse.jane`, password: `staff123`
+
 ## External Dependencies
 
 - **Flask**: Web framework and templating
-- **SQLAlchemy**: Database ORM and migrations
+- **SQLAlchemy**: Database ORM with PostgreSQL support
+- **psycopg2-binary**: PostgreSQL database adapter
 - **Werkzeug**: Password hashing and WSGI utilities
 - **Bootstrap**: Frontend CSS framework (CDN)
 - **Font Awesome**: Icon library (CDN)
@@ -76,10 +95,19 @@ The application follows a traditional Flask web application architecture with th
 
 The application is configured for flexible deployment:
 
-- **Development**: SQLite database with debug mode
-- **Production**: PostgreSQL support via DATABASE_URL environment variable
+- **Production**: PostgreSQL database with connection pooling
+- **Development**: SQLite fallback for local development
 - **Session Management**: Configurable secret key via SESSION_SECRET
 - **Proxy Support**: ProxyFix middleware for reverse proxy deployments
 - **Static Assets**: External CDN dependencies for Bootstrap and Font Awesome
+- **Database Backup**: JSON export functionality for data portability
 
 The system uses environment variables for configuration, making it suitable for various hosting platforms including cloud services that provide database URLs and session secrets through environment configuration.
+
+## Recent Changes (July 24, 2025)
+- ✅ Added PostgreSQL database with connection pooling
+- ✅ Created comprehensive database initialization scripts
+- ✅ Added sample data with 3 patients, appointments, bills, and lab tests
+- ✅ Fixed SQLAlchemy model instantiation issues for Flask 2.x compatibility
+- ✅ Implemented database management tools for backup and maintenance
+- ✅ Updated application to automatically detect and use PostgreSQL when available
