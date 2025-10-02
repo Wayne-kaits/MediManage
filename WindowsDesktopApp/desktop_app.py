@@ -419,7 +419,7 @@ class LoginWindow:
         # Logo/Title
         title_label = ModernWidget.create_label(
             main_frame, 
-            "🏥 Hospital Management", 
+            "🏥 MediManage", 
             size="title"
         )
         title_label.pack(pady=(0, 10))
@@ -546,7 +546,7 @@ class HospitalManagementApp:
         self.db = DatabaseManager()
         
         # Configure root window
-        self.root.title("Hospital Management System")
+        self.root.title("MediManage")
         self.root.geometry("1400x900")
         self.root.configure(bg=ModernStyle.BG_PRIMARY)
         self.root.state('zoomed')  # Maximize window

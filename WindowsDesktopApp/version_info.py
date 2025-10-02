@@ -42,7 +42,7 @@ VERSION_HISTORY = [
         "date": "2024-01-15",
         "type": "Major Release",
         "changes": [
-            "Initial release of Hospital Management System",
+            "Initial release of MediManage",
             "Complete patient management system",
             "Advanced appointment scheduling",
             "Comprehensive billing system",
