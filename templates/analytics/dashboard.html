@@ -1,0 +1,672 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4 mb-4">Analytics Dashboard</h1>
+    
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Patients</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ (dashboard_summary|default({})).get('patient_metrics', {}).get('total_patients', 0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_currency((dashboard_summary|default({})).get('revenue_metrics', {}).get('total_revenue', 0)) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Collection Rate</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ (((dashboard_summary|default({})).get('revenue_metrics', {}).get('collection_rate', 0) * 100) | round(1)) }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{ (((dashboard_summary|default({})).get('revenue_metrics', {}).get('collection_rate', 0) * 100) | round) }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Upcoming Appointments</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ ((dashboard_summary|default({})).get('appointment_metrics', {}).get('upcoming_appointments', 0)) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+        <!-- Patient Demographics -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Patient Demographics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="patientDemographicsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Trends -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Revenue</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Charts Row -->
+    <div class="row">
+        <!-- Appointment Trends -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Appointment Trends</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="appointmentTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab Test Distribution -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Lab Test Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="labTestChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if doctor_performance %}
+    <!-- Doctor Performance -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Doctor Performance</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="doctorPerformanceTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Total Appointments</th>
+                                    <th>Completed</th>
+                                    <th>Cancelled</th>
+                                    <th>Completion Rate</th>
+                                    <th>Lab Tests Ordered</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doctor_id, metrics in doctor_performance.items() %}
+                                <tr>
+                                    <td>{{ metrics.name }}</td>
+                                    <td>{{ metrics.total_appointments }}</td>
+                                    <td>{{ metrics.completed_appointments }}</td>
+                                    <td>{{ metrics.cancelled_appointments }}</td>
+                                    <td>{{ (metrics.completion_rate * 100) | round(1) }}%</td>
+                                    <td>{{ metrics.lab_tests_ordered }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if predictions %}
+    <!-- Predictions -->
+    <div class="row">
+        <!-- Appointment Load Prediction -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Predicted Appointment Load (Next 7 Days)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="appointmentPredictionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Visit Frequency -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Patient Visit Frequency</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="visitFrequencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Financial Insights -->
+    <div class="row">
+        <!-- Revenue by Service Type -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Revenue by Service Type</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="serviceRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outstanding Balances by Age -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Outstanding Balances by Age</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="outstandingBalancesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operational Insights -->
+    <div class="row">
+        <!-- Busiest Days of Week -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Busiest Days of Week</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="busiestDaysChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Busiest Hours -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Busiest Hours</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="busiestHoursChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Data Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Export Data for Analysis</h6>
+                </div>
+                <div class="card-body">
+                    <form action="/export-analytics" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="start_date">Start Date</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" 
+                                           value="">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="end_date">End Date</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date" 
+                                           value="">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-block">Export Data</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Patient Demographics Chart
+    const demographicsCtx = document.getElementById('patientDemographicsChart').getContext('2d');
+    const demographicsChart = new Chart(demographicsCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys({{ patient_demographics.age_groups|tojson }}),
+            datasets: [{
+                data: Object.values({{ patient_demographics.age_groups|tojson }}),
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                ],
+                hoverBackgroundColor: [
+                    '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Patient Age Distribution'
+                }
+            }
+        }
+    });
+
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: Object.keys({{ revenue_analytics.monthly_revenue|tojson }}),
+            datasets: [{
+                label: 'Monthly Revenue',
+                data: Object.values({{ revenue_analytics.monthly_revenue|tojson }}),
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                pointRadius: 3,
+                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointBorderColor: 'rgba(78, 115, 223, 1)',
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '$' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Appointment Trends Chart
+    const appointmentCtx = document.getElementById('appointmentTrendsChart').getContext('2d');
+    const appointmentChart = new Chart(appointmentCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys({{ appointment_trends.daily_counts|tojson }}),
+            datasets: [{
+                label: 'Daily Appointments',
+                data: Object.values({{ appointment_trends.daily_counts|tojson }}),
+                backgroundColor: 'rgba(54, 185, 204, 0.5)',
+                borderColor: 'rgba(54, 185, 204, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Lab Test Chart
+    const labTestCtx = document.getElementById('labTestChart').getContext('2d');
+    const labTestChart = new Chart(labTestCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys({{ lab_test_analytics.test_type_distribution|tojson }}),
+            datasets: [{
+                data: Object.values({{ lab_test_analytics.test_type_distribution|tojson }}),
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796',
+                    '#5a5c69', '#1cc88a', '#36b9cc', '#f6c23e'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Lab Test Types'
+                }
+            }
+        }
+    });
+
+    {% if predictions %}
+    // Appointment Prediction Chart
+    const predictionCtx = document.getElementById('appointmentPredictionChart').getContext('2d');
+    const predictionChart = new Chart(predictionCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys({{ predictions.appointment_load|tojson }}),
+            datasets: [{
+                label: 'Predicted Appointments',
+                data: Object.values({{ predictions.appointment_load|tojson }}),
+                backgroundColor: 'rgba(246, 194, 62, 0.5)',
+                borderColor: 'rgba(246, 194, 62, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Visit Frequency Chart
+    const frequencyCtx = document.getElementById('visitFrequencyChart').getContext('2d');
+    const frequencyChart = new Chart(frequencyCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys({{ predictions.visit_frequency|tojson }}),
+            datasets: [{
+                data: Object.values({{ predictions.visit_frequency|tojson }}),
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                ],
+                hoverBackgroundColor: [
+                    '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Patient Visit Frequency'
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Service Revenue Chart
+    const serviceRevenueCtx = document.getElementById('serviceRevenueChart').getContext('2d');
+    const serviceRevenueChart = new Chart(serviceRevenueCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys({{ financial_insights.service_revenue|tojson }}),
+            datasets: [{
+                data: Object.values({{ financial_insights.service_revenue|tojson }}),
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                    '#858796', '#5a5c69', '#1cc88a', '#36b9cc', '#f6c23e'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Revenue by Service Type'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': $' + context.parsed.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Outstanding Balances Chart
+    const outstandingBalancesCtx = document.getElementById('outstandingBalancesChart').getContext('2d');
+    const outstandingBalancesChart = new Chart(outstandingBalancesCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys({{ financial_insights.outstanding_by_age|tojson }}),
+            datasets: [{
+                label: 'Outstanding Amount',
+                data: Object.values({{ financial_insights.outstanding_by_age|tojson }}),
+                backgroundColor: [
+                    'rgba(28, 200, 138, 0.5)',
+                    'rgba(54, 185, 204, 0.5)',
+                    'rgba(246, 194, 62, 0.5)',
+                    'rgba(231, 74, 59, 0.5)'
+                ],
+                borderColor: [
+                    'rgb(28, 200, 138)',
+                    'rgb(54, 185, 204)',
+                    'rgb(246, 194, 62)',
+                    'rgb(231, 74, 59)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '$' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Busiest Days Chart
+    const busiestDaysCtx = document.getElementById('busiestDaysChart').getContext('2d');
+    const busiestDaysChart = new Chart(busiestDaysCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys({{ operational_insights.busiest_days|tojson }}),
+            datasets: [{
+                label: 'Appointments',
+                data: Object.values({{ operational_insights.busiest_days|tojson }}),
+                backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Busiest Hours Chart
+    const busiestHoursCtx = document.getElementById('busiestHoursChart').getContext('2d');
+    const busiestHoursChart = new Chart(busiestHoursCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys({{ operational_insights.busiest_hours|tojson }}),
+            datasets: [{
+                label: 'Appointments',
+                data: Object.values({{ operational_insights.busiest_hours|tojson }}),
+                backgroundColor: 'rgba(28, 200, 138, 0.5)',
+                borderColor: 'rgba(28, 200, 138, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

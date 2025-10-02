@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Access Logs{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4 mb-4">Patient Access Logs</h1>
+    
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filter Logs</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{{ url_for('view_patient_access_logs') }}">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="user_id">User</label>
+                            <select class="form-control" id="user_id" name="user_id">
+                                <option value="">All Users</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user_filter == user.id|string %}selected{% endif %}>
+                                    {{ user.username }} ({{ user.first_name }} {{ user.last_name }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="patient_id">Patient</label>
+                            <select class="form-control" id="patient_id" name="patient_id">
+                                <option value="">All Patients</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}" {% if patient_filter == patient.id|string %}selected{% endif %}>
+                                    {{ patient.patient_id }}: {{ patient.first_name }} {{ patient.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="action">Action</label>
+                            <select class="form-control" id="action" name="action">
+                                <option value="">All Actions</option>
+                                {% for action in actions %}
+                                <option value="{{ action }}" {% if action_filter == action %}selected{% endif %}>
+                                    {{ action }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="date_from">From Date</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" 
+                                   value="{{ date_from.strftime('%Y-%m-%d') if date_from else '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="date_to">To Date</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" 
+                                   value="{{ date_to.strftime('%Y-%m-%d') if date_to else '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Patient Access Logs Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Patient Access Logs</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="patientAccessLogsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Patient</th>
+                            <th>Action</th>
+                            <th>IP Address</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs.items %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                {% if log.user %}
+                                    {{ log.user.username }} ({{ log.user.first_name }} {{ log.user.last_name }})
+                                {% else %}
+                                    <span class="text-muted">Unknown</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.patient %}
+                                    <a href="{{ url_for('view_patient', patient_id=log.patient.id) }}">
+                                        {{ log.patient.patient_id }}: {{ log.patient.first_name }} {{ log.patient.last_name }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Unknown</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.ip_address }}</td>
+                            <td>
+                                {% if log.details %}
+                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#detailsModal{{ log.id }}">
+                                        View Details
+                                    </button>
+                                    
+                                    <!-- Details Modal -->
+                                    <div class="modal fade" id="detailsModal{{ log.id }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ log.id }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="detailsModalLabel{{ log.id }}">Access Details</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>{{ log.details }}</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">No details</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <nav aria-label="Patient access logs pagination">
+                <ul class="pagination justify-content-center">
+                    {% if logs.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('view_patient_access_logs', page=logs.prev_num, user_id=user_filter, patient_id=patient_filter, action=action_filter, date_from=date_from.strftime('%Y-%m-%d') if date_from else '', date_to=date_to.strftime('%Y-%m-%d') if date_to else '') }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == logs.page %}
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    {{ page_num }}
+                                    <span class="sr-only">(current)</span>
+                                </span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('view_patient_access_logs', page=page_num, user_id=user_filter, patient_id=patient_filter, action=action_filter, date_from=date_from.strftime('%Y-%m-%d') if date_from else '', date_to=date_to.strftime('%Y-%m-%d') if date_to else '') }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if logs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('view_patient_access_logs', page=logs.next_num, user_id=user_filter, patient_id=patient_filter, action=action_filter, date_from=date_from.strftime('%Y-%m-%d') if date_from else '', date_to=date_to.strftime('%Y-%m-%d') if date_to else '') }}">
+                            Next
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#patientAccessLogsTable').DataTable({
+            "paging": false,
+            "ordering": true,
+            "info": false,
+            "searching": true
+        });
+    });
+</script>
+{% endblock %}

@@ -55,6 +55,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        print('POST to /login:', dict(request.form))  # DEBUG
         username = request.form['username']
         password = request.form['password']
         

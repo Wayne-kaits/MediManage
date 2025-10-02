@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4 mb-4">User Profile</h1>
+    
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Profile Information</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('profile') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <input type="text" class="form-control" id="role" value="{{ user.role }}" readonly>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                        <a href="{{ url_for('change_password') }}" class="btn btn-secondary">Change Password</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in audit_logs %}
+                                <tr>
+                                    <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ log.action }}</td>
+                                    <td>{{ log.resource_type }}{% if log.resource_id %} #{{ log.resource_id }}{% endif %}</td>
+                                </tr>
+                                {% endfor %}
+                                
+                                {% if not audit_logs %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No recent activity</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Settings -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Security Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>Two-Factor Authentication</h5>
+                        {% if user.two_factor_auth and user.two_factor_auth.is_enabled %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Two-factor authentication is enabled
+                            </div>
+                            <form method="post" action="{{ url_for('disable_2fa') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <div class="form-group">
+                                    <label for="password">Enter your password to disable 2FA</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger">Disable Two-Factor Authentication</button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Two-factor authentication is not enabled
+                            </div>
+                            <a href="{{ url_for('setup_2fa') }}" class="btn btn-primary">Enable Two-Factor Authentication</a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Session Management</h5>
+                        <form method="post" action="{{ url_for('logout') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-warning">Log Out of All Sessions</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

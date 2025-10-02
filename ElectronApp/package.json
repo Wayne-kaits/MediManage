@@ -1,0 +1,42 @@
+{
+  "name": "medimanage-electron",
+  "version": "1.0.1",
+  "private": true,
+  "main": "main.js",
+  "description": "Electron shell for MediManage Flask app",
+  "author": "MediManage Team",
+  "scripts": {
+    "start": "electron .",
+    "dev": "cross-env FLASK_START=1 electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "electron": "^31.2.0",
+    "electron-builder": "^24.13.3",
+    "cross-env": "^7.0.3"
+  },
+  "build": {
+    "appId": "com.medimanage.app",
+    "productName": "MediManage",
+    "artifactName": "MediManage_${version}.${ext}",
+    "win": {
+      "target": ["nsis"],
+      "icon": "icons/icon.ico",
+      "publisherName": "Kaitsnet IT Solutions"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "directories": {
+      "buildResources": "icons",
+      "output": "dist"
+    }
+  }
+}

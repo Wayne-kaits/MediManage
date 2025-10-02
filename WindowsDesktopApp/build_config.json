@@ -1,0 +1,189 @@
+{
+    "build_info": {
+        "app_name": "Hospital Management System",
+        "app_version": "1.0.0",
+        "app_build": "2024.01.001",
+        "publisher": "Kaitsnet IT Solutions",
+        "publisher_website": "https://www.kaitsnet.com",
+        "support_email": "support@kaitsnet.com",
+        "installer_name": "HospitalManagementSystem_v1.0.0_Setup.exe",
+        "build_date": "2024-01-15",
+        "build_environment": "Production"
+    },
+    "pyinstaller_config": {
+        "entry_point": "setup.py",
+        "output_name": "HospitalManagementSystem_v1.0.0_Setup.exe",
+        "icon_file": "app_icon.ico",
+        "version_file": "version_info.txt",
+        "onefile": true,
+        "windowed": true,
+        "clean": true,
+        "noconfirm": true,
+        "upx": true,
+        "console": false,
+        "debug": false,
+        "strip": false
+    },
+    "application_files": [
+        "desktop_app.py",
+        "patient_management.py",
+        "appointment_management.py",
+        "billing_management.py",
+        "lab_management.py",
+        "reports_management.py",
+        "user_management.py",
+        "launch.py",
+        "requirements.txt",
+        "README.md",
+        "version_info.py",
+        "installer_config.json"
+    ],
+    "hidden_imports": [
+        "tkinter",
+        "tkinter.ttk",
+        "tkinter.messagebox",
+        "tkinter.filedialog",
+        "tkinter.scrolledtext",
+        "tkcalendar",
+        "matplotlib",
+        "matplotlib.backends.backend_tkagg",
+        "pandas",
+        "PIL",
+        "sqlite3",
+        "hashlib",
+        "datetime",
+        "pathlib",
+        "json",
+        "subprocess",
+        "shutil",
+        "winreg",
+        "os",
+        "sys"
+    ],
+    "dependencies": {
+        "build_dependencies": [
+            "PyInstaller>=5.0.0",
+            "Pillow>=10.0.0"
+        ],
+        "runtime_dependencies": [
+            "tkcalendar==1.6.1",
+            "matplotlib==3.7.2",
+            "pandas==2.0.3",
+            "Pillow==10.0.0"
+        ]
+    },
+    "installer_features": {
+        "create_desktop_shortcut": true,
+        "create_startmenu_shortcut": true,
+        "register_in_programs": true,
+        "create_uninstaller": true,
+        "check_admin_rights": true,
+        "check_system_requirements": true,
+        "install_dependencies": true,
+        "create_data_directory": true
+    },
+    "system_requirements": {
+        "minimum_os": "Windows 10",
+        "minimum_python": "3.7.0",
+        "minimum_ram_mb": 4096,
+        "minimum_disk_mb": 100,
+        "minimum_resolution": "1366x768",
+        "required_features": [
+            "tkinter support",
+            "SQLite support",
+            "Windows registry access"
+        ]
+    },
+    "branding": {
+        "company_name": "Kaitsnet IT Solutions",
+        "product_name": "Hospital Management System",
+        "copyright": "© 2024 Kaitsnet IT Solutions. All rights reserved.",
+        "trademark": "Hospital Management System is a trademark of Kaitsnet IT Solutions",
+        "description": "Professional hospital management solution for healthcare facilities",
+        "keywords": [
+            "hospital",
+            "management",
+            "healthcare",
+            "patient",
+            "appointment",
+            "billing",
+            "medical"
+        ]
+    },
+    "security": {
+        "code_signing": {
+            "enabled": false,
+            "certificate_path": "",
+            "timestamp_server": "http://timestamp.digicert.com"
+        },
+        "virus_scanning": {
+            "recommended": true,
+            "whitelist_instructions": "Add installer to antivirus whitelist if flagged"
+        },
+        "digital_signature": {
+            "enabled": false,
+            "certificate_subject": "Kaitsnet IT Solutions"
+        }
+    },
+    "distribution": {
+        "channels": [
+            "Direct Download",
+            "Company Website",
+            "Partner Distribution"
+        ],
+        "file_formats": [
+            "exe"
+        ],
+        "compression": "UPX",
+        "checksums": [
+            "MD5",
+            "SHA256"
+        ]
+    },
+    "quality_assurance": {
+        "test_environments": [
+            "Windows 10 Pro",
+            "Windows 11 Pro",
+            "Windows Server 2019",
+            "Windows Server 2022"
+        ],
+        "test_scenarios": [
+            "Fresh installation",
+            "Upgrade installation",
+            "Custom directory installation",
+            "Admin vs standard user",
+            "Antivirus compatibility",
+            "Uninstallation cleanup"
+        ]
+    },
+    "documentation": {
+        "included_files": [
+            "README_INSTALLER.txt",
+            "LICENSE.txt",
+            "INSTALLATION_GUIDE.md"
+        ],
+        "online_resources": [
+            "https://www.kaitsnet.com/support",
+            "https://kb.kaitsnet.com",
+            "https://community.kaitsnet.com"
+        ]
+    },
+    "legal": {
+        "license_type": "Commercial",
+        "eula_version": "1.0",
+        "privacy_policy": "https://www.kaitsnet.com/privacy",
+        "terms_of_service": "https://www.kaitsnet.com/terms",
+        "compliance": [
+            "HIPAA Ready",
+            "Data Protection Compliant",
+            "Healthcare Standards Compatible"
+        ]
+    },
+    "build_outputs": {
+        "primary_installer": "HospitalManagementSystem_v1.0.0_Setup.exe",
+        "checksum_file": "checksums.txt",
+        "package_info": "package_info.json",
+        "build_log": "build.log",
+        "readme_file": "README_INSTALLER.txt"
+    }
+}

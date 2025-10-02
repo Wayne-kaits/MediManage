@@ -1,17 +1,11 @@
 import os
 import logging
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from db import db
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
-
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
@@ -32,13 +26,13 @@ if database_url:
     print(f"Using PostgreSQL database")
 else:
     # Fallback to SQLite for development
-    os.makedirs('instance', exist_ok=True)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///instance/hospital.db"
+    abs_db_path = os.path.abspath(os.path.join('data', 'hospital.db'))
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{abs_db_path}"
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_recycle": 300,
         "pool_pre_ping": True,
     }
-    print("Using SQLite database: instance/hospital.db")
+    print(f"Using SQLite database: {abs_db_path}")
 
 # Initialize the app with the extension
 db.init_app(app)

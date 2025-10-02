@@ -146,15 +146,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply loading states to form submissions
     const submitButtons = document.querySelectorAll('button[type="submit"]');
     submitButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(event) {
             const form = button.closest('form');
             if (form && form.checkValidity()) {
                 showButtonLoading(button);
-                
-                // Hide loading after 5 seconds as fallback
-                setTimeout(function() {
-                    hideButtonLoading(button);
-                }, 5000);
+                form.submit(); // Ensure the form is actually submitted
+            } else {
+                event.preventDefault();
             }
         });
     });

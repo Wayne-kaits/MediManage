@@ -1,0 +1,92 @@
+Hospital Management System - Build Test Report
+Publisher: Kaitsnet IT Solutions
+Test Date: 2025-07-27 08:54:55
+============================================================
+
+[PASS] Python available
+    Details: 3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]
+
+[PASS] PyInstaller available
+    Details: 6.14.2
+
+[PASS] Source file: desktop_app.py
+
+[PASS] Source file: patient_management.py
+
+[PASS] Source file: appointment_management.py
+
+[PASS] Source file: billing_management.py
+
+[PASS] Source file: lab_management.py
+
+[PASS] Source file: reports_management.py
+
+[PASS] Source file: user_management.py
+
+[PASS] Source file: setup.py
+
+[PASS] Source file: build_installer.py
+
+[PASS] Source file: requirements.txt
+
+[PASS] Config file: build_config.json
+
+[PASS] JSON valid: build_config.json
+
+[PASS] Config file: installer_config.json
+
+[PASS] JSON valid: installer_config.json
+
+[PASS] Config file: version_info.py
+
+[PASS] Config file: BUILD_INSTRUCTIONS.md
+
+[PASS] Import tkinter
+    Details: Required - Available
+
+[PASS] Import sqlite3
+    Details: Required - Available
+
+[PASS] Import hashlib
+    Details: Required - Available
+
+[PASS] Import datetime
+    Details: Required - Available
+
+[PASS] Import pathlib
+    Details: Required - Available
+
+[PASS] Import json
+    Details: Required - Available
+
+[PASS] Import os
+    Details: Required - Available
+
+[PASS] Import sys
+    Details: Required - Available
+
+[PASS] Import tkcalendar
+    Details: Optional - 1.6.1
+
+[PASS] Import matplotlib
+    Details: Optional - 3.10.3
+
+[PASS] Import pandas
+    Details: Optional - 2.3.1
+
+[PASS] Import PIL
+    Details: Optional - 10.4.0
+
+[PASS] Installer file exists
+    Details: C:\Users\Kaits\Desktop\MediManage\WindowsDesktopApp\dist\HospitalManagementSystem_v1.0.0_Setup.exe
+
+[PASS] Installer properties
+    Details: Size: 21.9 MB
+
+SUMMARY
+--------------------
+Total Tests: 32
+Passed: 32
+Failed: 0
+Success Rate: 100.0%
+

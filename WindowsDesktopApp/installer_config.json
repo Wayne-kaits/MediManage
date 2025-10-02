@@ -1,0 +1,158 @@
+{
+    "application": {
+        "name": "Hospital Management System",
+        "version": "1.0.0",
+        "build": "2024.01.001",
+        "publisher": "Kaitsnet IT Solutions",
+        "website": "https://www.kaitsnet.com",
+        "support_email": "support@kaitsnet.com",
+        "description": "Comprehensive hospital management solution for healthcare facilities",
+        "category": "Healthcare Management",
+        "license": "Commercial"
+    },
+    "system_requirements": {
+        "minimum_os": "Windows 10",
+        "recommended_os": "Windows 11",
+        "minimum_python": "3.7.0",
+        "recommended_python": "3.9.0",
+        "minimum_ram_mb": 4096,
+        "recommended_ram_mb": 8192,
+        "minimum_disk_mb": 100,
+        "recommended_disk_mb": 500,
+        "minimum_resolution": "1366x768",
+        "recommended_resolution": "1920x1080"
+    },
+    "installation": {
+        "default_directory": "C:\\Program Files\\Kaitsnet IT Solutions\\Hospital Management System",
+        "create_desktop_shortcut": true,
+        "create_startmenu_shortcut": true,
+        "register_in_programs": true,
+        "create_uninstaller": true,
+        "check_dependencies": true,
+        "auto_start_after_install": false
+    },
+    "dependencies": {
+        "python_packages": [
+            {
+                "name": "tkcalendar",
+                "version": "1.6.1",
+                "description": "Calendar widget for Tkinter"
+            },
+            {
+                "name": "matplotlib",
+                "version": "3.7.2",
+                "description": "Data visualization and charting"
+            },
+            {
+                "name": "pandas",
+                "version": "2.0.3",
+                "description": "Data analysis and manipulation"
+            },
+            {
+                "name": "Pillow",
+                "version": "10.0.0",
+                "description": "Image processing library"
+            }
+        ],
+        "optional_packages": [
+            {
+                "name": "pywin32",
+                "description": "Windows-specific functionality"
+            },
+            {
+                "name": "winshell",
+                "description": "Windows shell operations"
+            }
+        ]
+    },
+    "features": [
+        {
+            "name": "Patient Management",
+            "description": "Complete patient records with medical history",
+            "category": "Core"
+        },
+        {
+            "name": "Appointment Scheduling",
+            "description": "Advanced booking system with conflict detection",
+            "category": "Core"
+        },
+        {
+            "name": "Billing System",
+            "description": "Comprehensive invoicing and payment tracking",
+            "category": "Core"
+        },
+        {
+            "name": "Lab Test Management",
+            "description": "Test ordering, results, and reporting",
+            "category": "Core"
+        },
+        {
+            "name": "Reports & Analytics",
+            "description": "Charts and data visualization",
+            "category": "Advanced"
+        },
+        {
+            "name": "User Management",
+            "description": "Role-based access control",
+            "category": "Advanced"
+        },
+        {
+            "name": "Modern UI",
+            "description": "Dark theme with professional design",
+            "category": "Interface"
+        },
+        {
+            "name": "Data Export",
+            "description": "Export reports to various formats",
+            "category": "Advanced"
+        }
+    ],
+    "security": {
+        "password_hashing": "SHA-256",
+        "session_management": true,
+        "role_based_access": true,
+        "data_validation": true,
+        "secure_database": true
+    },
+    "database": {
+        "type": "SQLite",
+        "auto_setup": true,
+        "backup_support": true,
+        "encryption": false,
+        "default_location": "data/hospital.db"
+    },
+    "ui_theme": {
+        "default_theme": "dark",
+        "color_scheme": "professional",
+        "font_family": "Segoe UI",
+        "responsive_design": true,
+        "accessibility": true
+    },
+    "support": {
+        "documentation": "README.md",
+        "user_guide": "Built-in help system",
+        "technical_support": "support@kaitsnet.com",
+        "community_forum": "https://community.kaitsnet.com",
+        "knowledge_base": "https://kb.kaitsnet.com"
+    },
+    "legal": {
+        "copyright": "© 2024 Kaitsnet IT Solutions. All rights reserved.",
+        "trademark": "Hospital Management System is a trademark of Kaitsnet IT Solutions",
+        "privacy_policy": "https://www.kaitsnet.com/privacy",
+        "terms_of_service": "https://www.kaitsnet.com/terms",
+        "eula_version": "1.0",
+        "compliance": [
+            "HIPAA Ready",
+            "Data Protection Compliant",
+            "Healthcare Standards Compatible"
+        ]
+    },
+    "installer_metadata": {
+        "created_date": "2024-01-15",
+        "installer_version": "1.0.0",
+        "compression": "none",
+        "digital_signature": false,
+        "virus_scan": "recommended",
+        "checksum_verification": true
+    }
+}
