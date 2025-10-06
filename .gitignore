@@ -134,11 +134,92 @@ WindowsDesktopApp/dist/
 WindowsDesktopApp/build/
 ElectronApp/dist/
 
-# Zencoder (optional - uncomment if you don't want to track)
-# .zencoder/
+# Zencoder files
+.zencoder/
+
+# Replit files
+.replit
+replit.nix
+.config/
+replit.md
+
+# UV lock file (Python package manager)
+uv.lock
+
+# Test output files
+test_output.html
+test_multitenant_output.html
+output.log
+error.log
 
 # Temporary files
 *.tmp
 *.temp
 *.bak
 *.old
+
+# Desktop app directories (not part of web app)
+WindowsDesktopApp/
+Windows_app/
+ElectronApp/
+
+# Multi-tenant files (excluding from single-tenant version)
+app_multitenant.py
+routes_multitenant.py
+routes_extended.py
+routes_admin.py
+master_models.py
+tenant_manager.py
+db_config.py
+audit_logger.py
+test_multitenant*.py
+run_multitenant.ps1
+templates/multitenant/
+MULTITENANT*.md
+
+# Test files
+test_*.py
+verify_*.py
+
+# Extra documentation files (keeping only main README)
+COMPLETION_SUMMARY.md
+DEPLOYMENT_GUIDE.md
+ENHANCEMENTS_COMPLETE.md
+ENHANCEMENTS_GUIDE.md
+ENHANCEMENT_REVIEW_COMPLETE.md
+FEATURE_COMPARISON.md
+FEATURE_MAP.md
+FINAL_STATUS_REPORT.md
+HOW_TO_RUN.md
+IMPLEMENTATION_COMPLETE.md
+IMPLEMENTATION_SUMMARY.md
+QUICK_START_GUIDE.md
+README_HOW_TO_RUN.txt
+README_REPORTS.md
+REPORTS_DOCUMENTATION.md
+REPORTS_IMPLEMENTATION_SUMMARY.md
+REPORTS_SCREENSHOT_MATCH.md
+RUN_SINGLE_TENANT.md
+SINGLE_TENANT_GUIDE.md
+START_HERE.md
+SYSTEM_ARCHITECTURE.md
+TESTING_CHECKLIST.md
+VERSION_COMPARISON.md
+
+# PowerShell scripts (not needed for cross-platform)
+*.ps1
+
+# Build and spec files
+*.spec
+HMS.spec
+
+# Additional unused files
+cache.py
+security.py
+analytics.py
+routes_update.py
+routes_reports.py
+database_manager.py
+db_init.py
+sample_data.py
+pyproject.toml

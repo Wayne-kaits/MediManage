@@ -119,3 +119,21 @@ class LabTest(db.Model):
 
     def __repr__(self):
         return f'<LabTest {self.test_id}: {self.test_name}>'
+
+class AuditLog(db.Model):
+    """Audit log for tracking all actions in the system."""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    action = db.Column(db.String(50), nullable=False)  # create, update, delete, login, logout
+    entity_type = db.Column(db.String(50), nullable=False)  # patient, appointment, bill, etc.
+    entity_id = db.Column(db.Integer, nullable=True)
+    description = db.Column(db.Text)
+    ip_address = db.Column(db.String(50))
+    user_agent = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='audit_logs')
+    
+    def __repr__(self):
+        return f'<AuditLog {self.action} on {self.entity_type} by User {self.user_id}>'

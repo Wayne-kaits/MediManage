@@ -452,15 +452,14 @@ def reports():
 
 # Initialize admin user if no users exist
 def create_admin():
-    with app.app_context():
-        if User.query.count() == 0:
-            admin = User()
-            admin.username = 'admin'
-            admin.email = 'admin@hospital.com'
-            admin.role = 'admin'
-            admin.first_name = 'System'
-            admin.last_name = 'Administrator'
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-            print("Default admin user created: admin/admin123")
+    if User.query.count() == 0:
+        admin = User()
+        admin.username = 'admin'
+        admin.email = 'admin@hospital.com'
+        admin.role = 'admin'
+        admin.first_name = 'System'
+        admin.last_name = 'Administrator'
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
+        print("Default admin user created: admin/admin123")
